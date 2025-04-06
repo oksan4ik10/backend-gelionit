@@ -1,6 +1,7 @@
 const errorHandler = require("../utils/errorHandler");
 
 const Request = require("../models/Request");
+const Product = require("../models/Product");
 
 module.exports.getAll = async (req, res) => {
   try {
@@ -82,4 +83,27 @@ module.exports.getById = async (req, res) => {
   } catch (e) {
     errorHandler(res, e);
   }
+};
+module.exports.getUnprocessed = async (req, res) => {
+  console.log(1222);
+
+  const requests = await Request.find({
+    status: "new",
+  });
+  console.log(requests);
+
+  const dataPromise = await Promise.all(
+    requests.map(async (item) => {
+      const product = await Product.findOne({ _id: item.IDproduct });
+      let obj = Object.assign({}, item);
+      obj["product"] = product;
+      return obj;
+    })
+  );
+
+  const data = dataPromise.map((item) => ({
+    ...item["_doc"],
+    product: item["product"],
+  }));
+  res.status(200).json(data);
 };
