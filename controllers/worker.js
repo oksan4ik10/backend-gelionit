@@ -82,7 +82,9 @@ module.exports.create = async (req, res) => {
 module.exports.delete = async (req, res) => {
   const worker = await Worker.findOne({ _id: req.params.id });
   if (worker.busy) {
-    res.status("404").json({ message: "Пользователь задейстован в проекте" });
+    res
+      .status("404")
+      .json({ message: "Пользователь задейстован в доставке заказа" });
     return;
   }
   try {
@@ -98,7 +100,6 @@ module.exports.update = async (req, res) => {
   const worker = await Worker.findOne({ _id: req.params.id });
 
   if (name) worker.name = name;
-  if (salary) worker.salary = salary;
   if (password) {
     const salt = bcrypt.genSaltSync(10);
     worker.password = password;
@@ -128,11 +129,11 @@ module.exports.getById = async (req, res) => {
 module.exports.getBusyFree = async (req, res) => {
   try {
     const workers = await Worker.find({
-      idRole: "67ab2aa301aad79d986f8c36",
+      idRole: "67f265fe52e6aaa0d936b784",
       busy: false,
     });
     if (!workers.length === 0) {
-      res.status(404).json({ message: "Пользователи не найдены" });
+      res.status(404).json({ message: "Сотрудники не найдены" });
     }
 
     const dataPromise = await Promise.all(

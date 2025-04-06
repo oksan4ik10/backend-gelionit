@@ -25,15 +25,13 @@ module.exports.login = async (req, res) => {
         );
         const role = await Role.findOne({ _id: candidate.idRole });
         res.status(200).json({
+          expires: 60 * 60 * 24 * 365,
           access_token: `Bearer ${token}`,
-          user: {
-            role: role,
-            id: candidate._id,
-            name: candidate.name,
-            busy: candidate.busy,
-            salary: candidate.salary,
-            is_admin: role.code === "admin",
-          },
+          role: role,
+          id: candidate._id,
+          name: candidate.name,
+          busy: candidate.busy,
+          is_admin: role.code === "admin",
         });
       } else {
         res.status(401).json({
