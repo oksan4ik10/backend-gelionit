@@ -85,12 +85,9 @@ module.exports.getById = async (req, res) => {
   }
 };
 module.exports.getUnprocessed = async (req, res) => {
-  console.log(1222);
-
   const requests = await Request.find({
     status: "new",
   });
-  console.log(requests);
 
   const dataPromise = await Promise.all(
     requests.map(async (item) => {

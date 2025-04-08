@@ -9,6 +9,7 @@ const workerRoute = require("./routes/worker");
 const roleRoute = require("./routes/role");
 const requestRoute = require("./routes/request");
 const productRoute = require("./routes/product");
+const orderRoute = require("./routes/order");
 // const taskRoute = require('./routes/task')
 // const projectRoute = require('./routes/project');
 // const trackingRoute = require('./routes/tracking');
@@ -41,7 +42,7 @@ app.use("/api/worker", workerRoute);
 app.use("/api/role", roleRoute);
 app.use("/api/requests", requestRoute);
 app.use("/api/products", productRoute);
-// app.use('/api/project',projectRoute)
+app.use("/api/order", orderRoute);
 // app.use('/api/tracking',trackingRoute)
 
 module.exports = app;

@@ -73,7 +73,7 @@ module.exports.getById = async (req, res) => {
     const product = await Product.findOne({ _id: req.params.id });
     if (!product) {
       res.status(404).json({
-        message: "Проект не найден",
+        message: "Продукт не найден",
       });
     }
     res.status(200).json(product);

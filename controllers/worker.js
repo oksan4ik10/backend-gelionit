@@ -53,7 +53,7 @@ module.exports.getAll = async (req, res) => {
   res.status(200).json(data);
 };
 module.exports.create = async (req, res) => {
-  const { name, salary, login, password, idRole } = req.body;
+  const { name, login, password, idRole } = req.body;
 
   const candidate = await Worker.findOne({ login: login });
   if (candidate) {
@@ -68,7 +68,6 @@ module.exports.create = async (req, res) => {
     login: login,
     password: password,
     name: name,
-    salary: salary ? salary : null,
     idRole: idRole,
   });
 

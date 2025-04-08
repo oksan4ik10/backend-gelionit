@@ -1,7 +1,7 @@
 const { Schema, model } = require("mongoose");
 
 const orderSchema = new Schema({
-  name: {
+  address: {
     type: String,
     required: true,
   },
@@ -15,7 +15,6 @@ const orderSchema = new Schema({
   },
   date_FactDelivery: {
     type: Date,
-    required: true,
   },
   status: {
     type: String,
