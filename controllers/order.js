@@ -6,8 +6,18 @@ const Order = require("../models/Order");
 const Worker = require("../models/Worker");
 const OrderHistory = require("../models/OrderHistory");
 module.exports.create = async (req, res) => {
-  const { address, IDproduct, count, IDworker, IDrequest, desc, IDmanager } =
-    req.body;
+  const {
+    address,
+    IDproduct,
+    count,
+    IDworker,
+    IDrequest,
+    desc,
+    IDmanager,
+    name_user,
+    phone,
+    email,
+  } = req.body;
 
   const product = await Product.findOne({ _id: IDproduct });
   const date = new Date();
@@ -26,8 +36,34 @@ module.exports.create = async (req, res) => {
     }
   }
   const worker = await Worker.findOne({ _id: IDworker });
-  const requestOrder = await Request.findOne({ _id: IDrequest });
-  requestOrder.status = "accept";
+  let idNewRequest = "";
+  if (IDrequest) {
+    const requestOrder = await Request.findOne({ _id: IDrequest });
+    requestOrder.status = "accept";
+    try {
+      await requestOrder.save();
+    } catch (e) {
+      errorHandler(res, e);
+      return;
+    }
+  } else {
+    const newRequest = new Request({
+      name_user,
+      phone,
+      email,
+      date: new Date(),
+      IDproduct,
+      status: "accept",
+    });
+    try {
+      await newRequest.save();
+      idNewRequest = newRequest._id;
+    } catch (e) {
+      errorHandler(res, e);
+      return;
+    }
+  }
+
   worker.busy = true;
   const request = new Order({
     address,
@@ -36,7 +72,7 @@ module.exports.create = async (req, res) => {
     date,
     date_PlanDelivery,
     IDworker,
-    IDrequest,
+    IDrequest: IDrequest || idNewRequest,
     date: new Date(),
     desc: desc ? desc : "",
     IDproduct,
@@ -45,7 +81,7 @@ module.exports.create = async (req, res) => {
   try {
     await worker.save();
     await request.save();
-    await requestOrder.save();
+
     const orderHistoryRequest = new OrderHistory({
       IDorder: request._id,
       update_date: date,
