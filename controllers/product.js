@@ -4,22 +4,13 @@ const Product = require("../models/Product");
 
 module.exports.getAll = async (req, res) => {
   try {
-    let keysQuery = Object.assign({}, req.query);
-    let paramOrdering = {};
-    if (keysQuery["ordering"]) {
-      const sort = keysQuery["ordering"][0] === "-" ? -1 : 1;
-      const key =
-        keysQuery["ordering"][0] === "-"
-          ? keysQuery["ordering"].slice(1)
-          : keysQuery["ordering"];
-      paramOrdering[key] = sort;
+    const paramOrdering = { name: 1 };
+    let options = {};
+    if (req.query.search) {
+      const re = new RegExp(".*" + req.query.search + ".*", "i");
+      options = { name: re };
     }
-    delete keysQuery["ordering"];
-    for (const key in keysQuery) {
-      if (!keysQuery[key]) delete keysQuery[key];
-    }
-
-    const products = await Product.find(keysQuery).sort(paramOrdering);
+    const products = await Product.find(options).sort(paramOrdering);
     res.status(200).json(products);
   } catch (e) {
     errorHandler(res, e);
