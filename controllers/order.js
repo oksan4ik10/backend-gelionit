@@ -105,9 +105,11 @@ module.exports.getAll = async (req, res) => {
       orders.map(async (item) => {
         const worker = await Worker.findOne({ _id: item.IDworker });
         const product = await Product.findOne({ _id: item.IDproduct });
+        const request = await Request.findOne({ _id: item.IDrequest });
         let obj = Object.assign({}, item);
         obj["worker"] = worker;
         obj["product"] = product;
+        obj["request"] = request;
         return obj;
       })
     );
@@ -116,8 +118,40 @@ module.exports.getAll = async (req, res) => {
       ...item["_doc"],
       worker: item["worker"],
       product: item["product"],
+      request: item["request"],
     }));
     res.status(200).json(data);
+  } catch (e) {
+    errorHandler(res, e);
+  }
+};
+module.exports.update = async (req, res) => {
+  const { desc, address, status, IDupdate_user } = req.body;
+  console.log(req.body);
+  const order = await Order.findOne({ _id: req.params.id });
+  if (desc) order.desc = desc;
+  if (address && order.address !== address) {
+    order.address = address;
+  }
+  if (status && order.status !== status) {
+    order.status = status;
+    const orderHistoryRequest = new OrderHistory({
+      IDorder: req.params.id,
+      update_date: new Date(),
+      update_user: IDupdate_user,
+      status,
+    });
+    try {
+      await orderHistoryRequest.save();
+    } catch (e) {
+      errorHandler(res, e);
+      return;
+    }
+  }
+
+  try {
+    await order.save();
+    res.status(200).json(order);
   } catch (e) {
     errorHandler(res, e);
   }
