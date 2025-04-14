@@ -4,7 +4,7 @@ const router = express.Router();
 const controller = require("../controllers/order");
 
 router.get("/", controller.getAll);
-// router.get("/:id", controller.getById);
+router.get("/history/:id", controller.getHistoryById);
 router.post("/", controller.create);
 router.patch("/:id", controller.update);
 // router.delete("/:id", controller.delete);

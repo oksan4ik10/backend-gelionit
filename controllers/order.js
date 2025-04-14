@@ -5,6 +5,7 @@ const Product = require("../models/Product");
 const Order = require("../models/Order");
 const Worker = require("../models/Worker");
 const OrderHistory = require("../models/OrderHistory");
+var nodemailer = require("nodemailer");
 module.exports.create = async (req, res) => {
   const {
     address,
@@ -87,6 +88,7 @@ module.exports.create = async (req, res) => {
       status,
     });
     await orderHistoryRequest.save();
+    sendEmail(email, request._id);
     res.status(200).json(request);
   } catch (e) {
     errorHandler(res, e);
@@ -128,6 +130,7 @@ module.exports.getAll = async (req, res) => {
 module.exports.update = async (req, res) => {
   const { desc, address, status, IDupdate_user } = req.body;
   console.log(req.body);
+  status = status.toLowerCase();
   const order = await Order.findOne({ _id: req.params.id });
   if (desc) order.desc = desc;
   if (address && order.address !== address) {
@@ -156,3 +159,60 @@ module.exports.update = async (req, res) => {
     errorHandler(res, e);
   }
 };
+module.exports.getHistoryById = async (req, res) => {
+  try {
+    const orders = await OrderHistory.find({ IDorder: req.params.id }).sort({
+      update_date: -1,
+    });
+    if (!orders) {
+      res.status(404).json({ message: "Заказ не найден" });
+    }
+    const order = await Order.findById(orders[0].IDorder);
+    const product = await Product.findById(order.IDproduct);
+    const dataPromise = await Promise.all(
+      orders.map(async (item) => {
+        const worker = await Worker.findOne({ _id: item.update_user });
+        let obj = Object.assign({}, item);
+        obj["worker"] = worker;
+        return obj;
+      })
+    );
+
+    const data = dataPromise.map((item) => ({
+      ...item["_doc"],
+      worker: item["worker"],
+    }));
+    res.status(200).json({
+      order,
+      product,
+      data,
+    });
+  } catch (e) {
+    errorHandler(res, e);
+  }
+};
+
+function sendEmail(userEmail, orderID) {
+  var transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: "ksan4ik92@gmail.com",
+      pass: "xzja htyi avmt kceb",
+    },
+  });
+
+  var mailOptions = {
+    from: "gelionit@mail.ru",
+    to: userEmail,
+    subject: "Гелионит: Отслеживание заказа",
+    text: `Спасибо за Ваш заказ! Отследить его Вы сможете по ссылке http://localhost:4200/order-history/${orderID}`,
+  };
+
+  transporter.sendMail(mailOptions, function (error, info) {
+    if (error) {
+      console.log(error);
+    } else {
+      console.log("Email sent: " + info.response);
+    }
+  });
+}
