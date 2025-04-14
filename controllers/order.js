@@ -25,8 +25,6 @@ module.exports.create = async (req, res) => {
   let status = "waiting_for_stock";
   if (product.count >= count) {
     status = "in_progress";
-    console.log(product.count);
-
     product.count = product.count - +count;
     date_PlanDelivery = new Date(date.getTime() + 7 * 24 * 60 * 60 * 1000);
     try {
@@ -90,6 +88,36 @@ module.exports.create = async (req, res) => {
     });
     await orderHistoryRequest.save();
     res.status(200).json(request);
+  } catch (e) {
+    errorHandler(res, e);
+  }
+};
+module.exports.getAll = async (req, res) => {
+  try {
+    const paramOrdering = { date: +req.query.order };
+    let options = {};
+    const status = req.query.status;
+    if (status) {
+      options = { status };
+    }
+    const orders = await Order.find(options).sort(paramOrdering);
+    const dataPromise = await Promise.all(
+      orders.map(async (item) => {
+        const worker = await Worker.findOne({ _id: item.IDworker });
+        const product = await Product.findOne({ _id: item.IDproduct });
+        let obj = Object.assign({}, item);
+        obj["worker"] = worker;
+        obj["product"] = product;
+        return obj;
+      })
+    );
+
+    const data = dataPromise.map((item) => ({
+      ...item["_doc"],
+      worker: item["worker"],
+      product: item["product"],
+    }));
+    res.status(200).json(data);
   } catch (e) {
     errorHandler(res, e);
   }

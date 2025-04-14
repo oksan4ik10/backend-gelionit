@@ -42,7 +42,7 @@ app.use("/api/worker", workerRoute);
 app.use("/api/role", roleRoute);
 app.use("/api/requests", requestRoute);
 app.use("/api/products", productRoute);
-app.use("/api/order", orderRoute);
+app.use("/api/orders", orderRoute);
 // app.use('/api/tracking',trackingRoute)
 
 module.exports = app;
