@@ -30,13 +30,6 @@ module.exports.getAll = async (req, res) => {
 
   const dataPromise = await Promise.all(
     workers.map(async (item) => {
-      if (
-        findTitle &&
-        !item.name.includes(findTitle) &&
-        !item.login.includes(findTitle)
-      ) {
-        return null;
-      }
       const cat = await Role.findOne({ _id: item.idRole });
       let obj = Object.assign({}, item);
       obj["role"] = cat;
@@ -107,7 +100,7 @@ module.exports.update = async (req, res) => {
   if (busy !== undefined) worker.busy = busy;
   try {
     await worker.save();
-    res.status(200).json(worker);
+    res.status(200).json({ message: "success" });
   } catch (e) {
     errorHandler(res, e);
   }
@@ -127,7 +120,7 @@ module.exports.getById = async (req, res) => {
 
 module.exports.getBusyFree = async (req, res) => {
   try {
-    const workers = await Worker.find({
+    let workers = await Worker.find({
       idRole: "67f265fe52e6aaa0d936b784",
       busy: false,
     });
@@ -144,10 +137,15 @@ module.exports.getBusyFree = async (req, res) => {
       })
     );
 
-    const data = dataPromise.map((item) => ({
-      ...item["_doc"],
-      role: item["role"],
-    }));
+    const data = dataPromise.map((item) => {
+      const obj = {
+        ...item["_doc"],
+        role: item["role"],
+      };
+      delete obj["login"];
+      delete obj["password"];
+      return obj;
+    });
     res.status(200).json(data);
   } catch (e) {
     errorHandler(res, e);
