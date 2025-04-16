@@ -10,11 +10,13 @@ module.exports.login = async (req, res) => {
   try {
     const candidate = await Worker.findOne({ login: req.body.login });
     if (candidate) {
-      //   const passwordRes = bcrypt.compareSync(
-      //     req.body.password,
-      //     candidate.password
-      //   );
-      const passwordRes = candidate.password === req.body.password;
+      const passwordRes = bcrypt.compareSync(
+        req.body.password,
+        candidate.password
+      );
+      // console.log();
+
+      // const passwordRes = candidate.password === passwordCrypt;
       if (passwordRes) {
         const token = jwt.sign(
           {

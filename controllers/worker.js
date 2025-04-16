@@ -5,28 +5,14 @@ const Worker = require("../models/Worker");
 const Role = require("../models/Role");
 
 module.exports.getAll = async (req, res) => {
-  let keysQuery = Object.assign({}, req.query);
-  let paramOrdering = {};
-  if (keysQuery["ordering"]) {
-    const sort = keysQuery["ordering"][0] === "-" ? -1 : 1;
-    const key =
-      keysQuery["ordering"][0] === "-"
-        ? keysQuery["ordering"].slice(1)
-        : keysQuery["ordering"];
-    paramOrdering[key] = sort;
-  }
-  let findTitle = "";
-  delete keysQuery["ordering"];
-  if (keysQuery["title"]) {
-    findTitle = keysQuery["title"];
-    delete keysQuery["title"];
+  const paramOrdering = { name: 1 };
+  let options = {};
+  if (req.query.search) {
+    const re = new RegExp(".*" + req.query.search + ".*", "i");
+    options = { name: re };
   }
 
-  for (const key in keysQuery) {
-    if (!keysQuery[key]) delete keysQuery[key];
-  }
-
-  const workers = await Worker.find(keysQuery).sort(paramOrdering);
+  const workers = await Worker.find(options).sort(paramOrdering);
 
   const dataPromise = await Promise.all(
     workers.map(async (item) => {
@@ -59,7 +45,7 @@ module.exports.create = async (req, res) => {
   const salt = bcrypt.genSaltSync(10);
   const worker = new Worker({
     login: login,
-    password: password,
+    password: bcrypt.hashSync(password, salt),
     name: name,
     idRole: idRole,
   });
@@ -87,17 +73,14 @@ module.exports.delete = async (req, res) => {
   }
 };
 module.exports.update = async (req, res) => {
-  const { name, salary, password, idRole, busy } = req.body;
+  const { password } = req.body;
 
   const worker = await Worker.findOne({ _id: req.params.id });
-
-  if (name) worker.name = name;
   if (password) {
     const salt = bcrypt.genSaltSync(10);
-    worker.password = password;
+    worker.password = bcrypt.hashSync(password, salt);
   }
-  if (idRole) worker.idRole = idRole;
-  if (busy !== undefined) worker.busy = busy;
+
   try {
     await worker.save();
     res.status(200).json({ message: "success" });

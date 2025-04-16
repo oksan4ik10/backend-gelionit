@@ -38,8 +38,8 @@ app.use(passport.initialize());
 require("./middleware/passport")(passport);
 
 app.use("/api/auth", authRoute);
-app.use("/api/worker", workerRoute);
-app.use("/api/role", roleRoute);
+app.use("/api/workers", workerRoute);
+app.use("/api/roles", roleRoute);
 app.use("/api/requests", requestRoute);
 app.use("/api/products", productRoute);
 app.use("/api/orders", orderRoute);
