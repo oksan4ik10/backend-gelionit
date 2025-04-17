@@ -5,6 +5,10 @@ const Worker = require("../models/Worker");
 const Role = require("../models/Role");
 
 module.exports.getAll = async (req, res) => {
+  if (req.user.idRole.toString() !== "67f265d952e6aaa0d936b783") {
+    res.status(401).json({ message: "Not enough permissions " });
+    return;
+  }
   const paramOrdering = { name: 1 };
   let options = {};
   if (req.query.search) {

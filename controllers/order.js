@@ -102,6 +102,9 @@ module.exports.getAll = async (req, res) => {
     if (status) {
       options = { status };
     }
+    if (req.user.idRole.toString() === "67f265fe52e6aaa0d936b784") {
+      options.IDworker = req.user._id.toString();
+    }
     const orders = await Order.find(options).sort(paramOrdering);
     const dataPromise = await Promise.all(
       orders.map(async (item) => {
@@ -223,7 +226,8 @@ function sendEmail(userEmail, orderID) {
     from: "gelionit@mail.ru",
     to: userEmail,
     subject: "Гелионит: Отслеживание заказа",
-    text: `Спасибо за Ваш заказ! Отследить его Вы сможете по ссылке http://localhost:4200/order-history/${orderID}`,
+    text: ` `,
+    html: `Спасибо за Ваш заказ! Отследить его Вы сможете по ссылке <a href="http://localhost:4200/order-history/${orderID}">http://localhost:4200/order-history/${orderID}</a>`,
   };
 
   transporter.sendMail(mailOptions, function (error, info) {
