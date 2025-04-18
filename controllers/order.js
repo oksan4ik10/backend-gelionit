@@ -151,8 +151,19 @@ module.exports.update = async (req, res) => {
       update_user: IDupdate_user,
       status: statusText,
     });
+
     try {
       await orderHistoryRequest.save();
+    } catch (e) {
+      errorHandler(res, e);
+      return;
+    }
+  }
+  if (status === "cancelled") {
+    const product = await Product.findOne({ _id: order.IDproduct });
+    product.count += order.count;
+    try {
+      await product.save();
     } catch (e) {
       errorHandler(res, e);
       return;
@@ -217,8 +228,8 @@ function sendEmail(userEmail, orderID) {
   var transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
-      user: "ksan4ik92@gmail.com",
-      pass: "xzja htyi avmt kceb",
+      user: "nmaksim92@gmail.com",
+      pass: "gnmx nlji fhxb ayoj",
     },
   });
 
