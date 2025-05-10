@@ -238,7 +238,7 @@ function sendEmail(userEmail, orderID) {
     to: userEmail,
     subject: "Гелионит: Отслеживание заказа",
     text: ` `,
-    html: `Спасибо за Ваш заказ! Отследить его Вы сможете по ссылке <a href="https://gelionit.netlify.app/order-history/${orderID}">http://localhost:4200/order-history/${orderID}</a>`,
+    html: `Спасибо за Ваш заказ! Отследить его Вы сможете по ссылке <a href="https://gelionit.netlify.app/order-history/${orderID}">https://gelionit.netlify.app/order-history/${orderID}</a>`,
   };
 
   transporter.sendMail(mailOptions, function (error, info) {
